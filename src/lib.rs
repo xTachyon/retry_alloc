@@ -11,7 +11,9 @@ use std::{
 
 #[non_exhaustive]
 pub struct RetryConfig {
+    /// How much time to wait when an allocation fails before trying a new one.
     pub time_to_wait: Duration,
+    /// How many times to try to allocate for a single alloc/alloc_zeroed/realloc call, not including the first one.
     pub max_retries: u32,
 }
 
