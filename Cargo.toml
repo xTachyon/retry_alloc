@@ -2,6 +2,17 @@
 name = "retry_alloc"
 version = "0.1.0"
 edition = "2021"
+description = "A global allocator wrapper that will retry failed allocations."
+readme = "README.md"
+repository = "https://github.com/xTachyon/retry_alloc"
+license = "MIT OR Apache-2.0"
+include = [
+    "/Cargo.toml",
+    "/LICENSE-APACHE",
+    "/LICENSE-MIT",
+    "/README.md",
+    "/src/**",
+]
 
 [dependencies]
 
