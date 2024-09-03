@@ -73,6 +73,21 @@ impl<T: GlobalAlloc> RetryAlloc<T> {
     }
 
     #[cold]
+    unsafe fn alloc_zeroed_slow(&self, layout: Layout) -> *mut u8 {
+        for _ in 0..self.config.max_retries {
+            sleep(self.config.time_to_wait);
+            self.number_of_retries.fetch_add(1, Ordering::Relaxed);
+
+            let r = self.inner.alloc_zeroed(layout);
+            if !r.is_null() {
+                return r;
+            }
+        }
+
+        null_mut()
+    }
+
+    #[cold]
     unsafe fn realloc_slow(&self, ptr: *mut u8, layout: Layout, new_size: usize) -> *mut u8 {
         for _ in 0..self.config.max_retries {
             sleep(self.config.time_to_wait);
@@ -106,7 +121,12 @@ unsafe impl<T: GlobalAlloc> GlobalAlloc for RetryAlloc<T> {
 
     #[inline]
     unsafe fn alloc_zeroed(&self, layout: Layout) -> *mut u8 {
-        self.inner.alloc_zeroed(layout)
+        let r = self.inner.alloc_zeroed(layout);
+        if r.is_null() {
+            self.alloc_zeroed_slow(layout)
+        } else {
+            r
+        }
     }
 
     #[inline]
