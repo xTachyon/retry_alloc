@@ -29,12 +29,22 @@ pub struct RetryAlloc<T: GlobalAlloc = System> {
 
 impl<T: GlobalAlloc> RetryAlloc<T> {
     #[inline]
-    pub const fn new(alloc: T, config: RetryConfig) -> Self {
+    pub const fn with_config(alloc: T, config: RetryConfig) -> Self {
         Self {
             inner: alloc,
             config,
             number_of_retries: AtomicU64::new(0),
         }
+    }
+
+    pub const fn new(alloc: T) -> Self {
+        Self::with_config(
+            alloc,
+            RetryConfig {
+                time_to_wait: Duration::from_millis(50),
+                max_retries: 10,
+            },
+        )
     }
 
     #[inline]
